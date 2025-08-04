@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookmark, faEye, faEyeSlash, faCopy, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { axiosInstance } from "../lib/axios"; // ✅ Import axiosInstance
 
 const Manager = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,9 +13,8 @@ const Manager = () => {
 
   const getPasswords = async () => {
     try {
-      const req = await fetch("http://localhost:3000/api/pass", { credentials: "include" });
-      const passwords = await req.json();
-      setPassArray(passwords);
+      const res = await axiosInstance.get("/api/pass");
+      setPassArray(res.data);
     } catch (error) {
       toast.error('Failed to load passwords');
       console.error("Fetch passwords error:", error);
@@ -37,13 +37,7 @@ const Manager = () => {
     setIsSaving(true);
 
     try {
-      const res = await fetch("http://localhost:3000/api/pass", {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error("Failed to save password");
+      await axiosInstance.post("/api/pass", form);
       await getPasswords();
       setForm({ website: "", username: "", password: "" });
       toast.success('Password saved', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
@@ -60,14 +54,7 @@ const Manager = () => {
       const itemToDelete = passArray[index];
       if (!itemToDelete._id) throw new Error("No ID to delete");
 
-      const res = await fetch(`http://localhost:3000/api/pass/${itemToDelete._id}`, {
-        method: 'DELETE',
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-
-      if (!res.ok) throw new Error("Delete failed");
-
+      await axiosInstance.delete(`/api/pass/${itemToDelete._id}`);
       await getPasswords();
       toast.success('Password deleted', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
     } catch (error) {
@@ -152,7 +139,6 @@ const Manager = () => {
             <p className="text-blue-700 text-center text-sm sm:text-base">No passwords saved yet.</p>
           ) : (
             <div className="space-y-4 sm:overflow-x-auto">
-              {/* Desktop Table Layout */}
               <table className="w-full border-collapse hidden sm:table">
                 <thead className="bg-blue-950 text-blue-50">
                   <tr>
@@ -229,79 +215,6 @@ const Manager = () => {
                   ))}
                 </tbody>
               </table>
-
-              {/* Mobile Box Layout */}
-              <div className="sm:hidden space-y-4">
-                {passArray.map((item, index) => (
-                  <div key={index} className="bg-white border border-blue-200 rounded-md p-4 shadow-sm">
-                    <div className="flex flex-col space-y-3 text-blue-900">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-xs">Website</span>
-                        <div className="flex items-center">
-                          <a
-                            href={item.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline text-xs"
-                            aria-label={`Visit ${item.website}`}
-                          >
-                            {item.website}
-                          </a>
-                          <button
-                            onClick={() => copyText(item.website)}
-                            className="ml-2 text-blue-500 hover:text-blue-700"
-                            aria-label="Copy website URL"
-                          >
-                            <FontAwesomeIcon icon={faCopy} size="sm" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-xs">Username</span>
-                        <div className="flex items-center">
-                          <span className="text-xs">{item.username}</span>
-                          <button
-                            onClick={() => copyText(item.username)}
-                            className="ml-2 text-blue-500 hover:text-blue-700"
-                            aria-label="Copy username"
-                          >
-                            <FontAwesomeIcon icon={faCopy} size="sm" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-xs">Password</span>
-                        <div className="flex items-center">
-                          <span className="text-xs">{item.password}</span>
-                          <button
-                            onClick={() => copyText(item.password)}
-                            className="ml-2 text-blue-500 hover:text-blue-700"
-                            aria-label="Copy password"
-                          >
-                            <FontAwesomeIcon icon={faCopy} size="sm" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-end space-x-2">
-                        <button
-                          onClick={() => deletePass(index)}
-                          className="text-red-500 hover:text-red-700"
-                          aria-label="Delete password"
-                        >
-                          <FontAwesomeIcon icon={faTrash} size="sm" />
-                        </button>
-                        <button
-                          onClick={() => editPass(index)}
-                          className="text-blue-500 hover:text-blue-700"
-                          aria-label="Edit password"
-                        >
-                          <FontAwesomeIcon icon={faPenToSquare} size="sm" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
         </div>
