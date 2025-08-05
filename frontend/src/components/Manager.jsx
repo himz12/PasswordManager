@@ -11,15 +11,18 @@ const Manager = () => {
   const [form, setForm] = useState({ website: "", username: "", password: "" });
   const [passArray, setPassArray] = useState([]);
 
-  const getPasswords = async () => {
+ const getPasswords = async () => {
   try {
     const res = await axiosInstance.get("/api/pass");
-    setPassArray(res.data);
+    console.log("API response:", res.data);  // Debug line
+    setPassArray(Array.isArray(res.data) ? res.data : []);
   } catch (error) {
+    setPassArray([]);  // fallback to empty array to prevent .map crash
     toast.error('Failed to load passwords');
     console.error("Fetch passwords error:", error);
   }
 };
+
 
 
   useEffect(() => { getPasswords(); }, []);
