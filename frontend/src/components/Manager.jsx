@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookmark, faEye, faEyeSlash, faCopy, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { axiosInstance } from "../lib/axios.js"; 
 
 const Manager = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,15 +12,15 @@ const Manager = () => {
   const [passArray, setPassArray] = useState([]);
 
   const getPasswords = async () => {
-    try {
-      const req = await fetch("http://localhost:3000/api/pass", { credentials: "include" });
-      const passwords = await req.json();
-      setPassArray(passwords);
-    } catch (error) {
-      toast.error('Failed to load passwords');
-      console.error("Fetch passwords error:", error);
-    }
-  };
+  try {
+    const res = await axiosInstance.get("/api/pass");
+    setPassArray(res.data);
+  } catch (error) {
+    toast.error('Failed to load passwords');
+    console.error("Fetch passwords error:", error);
+  }
+};
+
 
   useEffect(() => { getPasswords(); }, []);
 
@@ -28,53 +29,42 @@ const Manager = () => {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const savePass = async () => {
-    if (!form.website || !form.username || !form.password) {
-      toast.error('Please fill all fields', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
-      return;
-    }
+  if (!form.website || !form.username || !form.password) {
+    toast.error('Please fill all fields', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
+    return;
+  }
 
-    if (isSaving) return;
-    setIsSaving(true);
+  if (isSaving) return;
+  setIsSaving(true);
 
-    try {
-      const res = await fetch("http://localhost:3000/api/pass", {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error("Failed to save password");
-      await getPasswords();
-      setForm({ website: "", username: "", password: "" });
-      toast.success('Password saved', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
-    } catch (error) {
-      toast.error('Failed to save password');
-      console.error("Save error:", error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  try {
+    await axiosInstance.post("/api/pass", form);
+    await getPasswords();
+    setForm({ website: "", username: "", password: "" });
+    toast.success('Password saved', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
+  } catch (error) {
+    toast.error('Failed to save password');
+    console.error("Save error:", error);
+  } finally {
+    setIsSaving(false);
+  }
+};
+
 
   const deletePass = async (index) => {
-    try {
-      const itemToDelete = passArray[index];
-      if (!itemToDelete._id) throw new Error("No ID to delete");
+  try {
+    const itemToDelete = passArray[index];
+    if (!itemToDelete._id) throw new Error("No ID to delete");
 
-      const res = await fetch(`http://localhost:3000/api/pass/${itemToDelete._id}`, {
-        method: 'DELETE',
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
+    await axiosInstance.delete(`/api/pass/${itemToDelete._id}`);
+    await getPasswords();
+    toast.success('Password deleted', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
+  } catch (error) {
+    toast.error('Failed to delete password');
+    console.error("Delete error:", error);
+  }
+};
 
-      if (!res.ok) throw new Error("Delete failed");
-
-      await getPasswords();
-      toast.success('Password deleted', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
-    } catch (error) {
-      toast.error('Failed to delete password');
-      console.error("Delete error:", error);
-    }
-  };
 
   const editPass = (index) => {
     setForm(passArray[index]);
