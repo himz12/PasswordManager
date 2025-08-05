@@ -13,17 +13,13 @@ const Manager = () => {
 
  const getPasswords = async () => {
   try {
-    const res = await axiosInstance.get("/api/pass");
-    console.log("API response:", res.data);  // Debug line
-    setPassArray(Array.isArray(res.data) ? res.data : []);
+    const res = await axiosInstance.get("/pass");
+    setPassArray(res.data);
   } catch (error) {
-    setPassArray([]);  // fallback to empty array to prevent .map crash
     toast.error('Failed to load passwords');
     console.error("Fetch passwords error:", error);
   }
 };
-
-
 
   useEffect(() => { getPasswords(); }, []);
 
@@ -41,7 +37,7 @@ const Manager = () => {
   setIsSaving(true);
 
   try {
-    await axiosInstance.post("/api/pass", form);
+    await axiosInstance.post("/pass", form);
     await getPasswords();
     setForm({ website: "", username: "", password: "" });
     toast.success('Password saved', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
@@ -59,7 +55,7 @@ const Manager = () => {
     const itemToDelete = passArray[index];
     if (!itemToDelete._id) throw new Error("No ID to delete");
 
-    await axiosInstance.delete(`/api/pass/${itemToDelete._id}`);
+    await axiosInstance.delete(`/pass/${itemToDelete._id}`);
     await getPasswords();
     toast.success('Password deleted', { position: "top-right", autoClose: 2000, theme: "light", transition: Bounce });
   } catch (error) {
