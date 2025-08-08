@@ -1,6 +1,5 @@
 import React from 'react';
 import Manager from '../components/Manager';
-import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 const HomePage = () => {

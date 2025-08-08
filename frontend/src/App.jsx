@@ -1,8 +1,6 @@
 import { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar'
-import Manager from './components/Manager'
-import Footer from './components/Footer'
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -11,16 +9,11 @@ import './App.css'
 import { Toaster } from 'react-hot-toast'; 
 
 function App() {
-  const {authUser,checkAuth,isCheckingAuth,onlineUsers} = useAuthStore()
+  const {authUser,checkAuth,isCheckingAuth} = useAuthStore()
   useEffect(()=>{
     checkAuth()
   },[checkAuth])
 
-  // if(isCheckingAuth && !authUser) return (
-  //   <div className='flex items-baseline justify-center h-screen'>
-  //     <Loader className='size-10 animate-spin'/>
-  //   </div>
-  // ) 
   return (
     <div>
       <Navbar />

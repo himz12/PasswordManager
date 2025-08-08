@@ -79,7 +79,7 @@ export const logout = (req,res)=>{
 
 export const checkAuth = (req, res) => {
     try {
-        console.log("✅ checkAuth route hit!");
+        console.log("checkAuth route hit!");
         console.log("User from protectRoute middleware:", req.user);
         res.status(200).json(req.user);  // This should be user info
     } catch (error) {

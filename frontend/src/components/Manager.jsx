@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookmark, faEye, faEyeSlash, faCopy, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
-import "react-toastify/dist/ReactToastify.css";
 import { axiosInstance } from "../lib/axios.js"; 
 
 const Manager = () => {

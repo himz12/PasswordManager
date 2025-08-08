@@ -7,7 +7,6 @@ export const savePassword = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Assuming you have req.user from protectRoute middleware
     const userId = req.user._id;
     const newPassword = new Password({ website, username, password, user: userId });
 
